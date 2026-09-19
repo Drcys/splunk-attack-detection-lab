@@ -35,11 +35,13 @@ single user account across all three log sources.
 
 ## Data source
 
-Synthetic SOC lab data set (`Day3_Data_Splunk`): three log files —
-`wineventlog.log`, `sysmon.log`, `proxy.log`. All identifiers are fictional and all
-external IP addresses fall within the RFC 5737 documentation ranges
-(`192.0.2.0/24`, `198.51.100.0/24`). No real system was accessed and no personal
-data is present.
+The log data used in this investigation comes from a SOC training lab exercise
+and is not redistributed here for licensing reasons. It consists of three log
+files — `wineventlog.log`, `sysmon.log` and `proxy.log`. All identifiers are
+synthetic and all external IP addresses fall within the RFC 5737 documentation
+ranges (`192.0.2.0/24`, `198.51.100.0/24`); no real system was accessed and no
+personal data is present. The screenshots in this repository show the actual
+analysis performed on that data.
 
 ## Setup (reproduce it yourself)
 
