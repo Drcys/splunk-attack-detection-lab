@@ -1,0 +1,99 @@
+<form version="1.1" theme="dark">
+  <label>Attack Detection Lab - Investigation Dashboard</label>
+  <description>One-screen view of the finuser01 investigation: beaconing, persistence and cross-source timeline. Import via Dashboards > Create New Dashboard > Source.</description>
+
+  <fieldset submitButton="false">
+    <input type="time" token="t">
+      <label>Time range</label>
+      <default><earliest>0</earliest><latest></latest></default>
+    </input>
+    <input type="text" token="user">
+      <label>User</label>
+      <default>finuser01</default>
+    </input>
+  </fieldset>
+
+  <row>
+    <panel>
+      <title>Events by source</title>
+      <single>
+        <search>
+          <query>index=main | stats count</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+        <option name="underLabel">events ingested</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Outbound connections per destination (top 10)</title>
+      <chart>
+        <search>
+          <query>index=main source="proxy.log" | stats count by dest_host | sort - count | head 10</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Beacon candidates: regular interval, low jitter</title>
+      <table>
+        <search>
+          <query>index=main source="proxy.log"
+| sort 0 _time
+| streamstats current=f last(_time) as prev by src_ip, dest_host
+| eval gap=_time-prev
+| stats count, avg(gap) as avg_gap_s, stdev(gap) as jitter_s, sum(bytes_out) as bytes_out by src_ip, dest_host
+| where count&gt;=20
+| eval avg_gap_s=round(avg_gap_s,1), jitter_s=round(jitter_s,1)
+| sort jitter_s</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Connection timeline for top beacon destination</title>
+      <chart>
+        <search>
+          <query>index=main source="proxy.log" user=$user$ | timechart span=1m count by dest_host limit=5</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Scheduled tasks created (4698)</title>
+      <table>
+        <search>
+          <query>index=main source="wineventlog.log" EventCode=4698
+| eval suspicious=if(match(TaskContent,"(?i)-enc|-w hidden|-nop"),"yes","no")
+| table _time, host, user, TaskName, TaskContent, suspicious</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Cross-source timeline for $user$</title>
+      <table>
+        <search>
+          <query>index=main user=$user$ | table _time, source, EventCode, dest_host, dest_ip, bytes_out | sort _time</query>
+          <earliest>$t.earliest$</earliest><latest>$t.latest$</latest>
+        </search>
+        <option name="count">20</option>
+      </table>
+    </panel>
+  </row>
+</form>

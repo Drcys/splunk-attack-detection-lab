@@ -1,0 +1,72 @@
+{
+  "name": "splunk-attack-detection-lab",
+  "versions": {
+    "layer": "4.5",
+    "navigator": "4.9.1",
+    "attack": "15"
+  },
+  "domain": "enterprise-attack",
+  "description": "Techniques observed or checked in the finuser01 investigation.",
+  "techniques": [
+    {
+      "techniqueID": "T1078",
+      "score": 1,
+      "color": "#e5534b",
+      "comment": "Logon 4624 \u2192 4672 for finuser01 (Rule 4)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1071",
+      "score": 1,
+      "color": "#e5534b",
+      "comment": "Fixed ~60 s outbound to cdn-static-updates.example.net (Rule 6)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1041",
+      "score": 1,
+      "color": "#e5534b",
+      "comment": "~2 MB sent over the C2 channel (Rule 6)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1053.005",
+      "score": 1,
+      "color": "#e5534b",
+      "comment": "Scheduled task SystemUpdateCheck, Event 4698 (Rule 2)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1059.001",
+      "score": 1,
+      "color": "#e5534b",
+      "comment": "powershell.exe -nop -w hidden -enc (Rule 3)",
+      "enabled": true
+    },
+    {
+      "techniqueID": "T1110",
+      "score": 0,
+      "color": "#9aa4ae",
+      "comment": "Checked; no brute force present \u2014 documented negative (Rule 1)",
+      "enabled": true
+    }
+  ],
+  "gradient": {
+    "colors": [
+      "#9aa4ae",
+      "#e5534b"
+    ],
+    "minValue": 0,
+    "maxValue": 1
+  },
+  "legendItems": [
+    {
+      "label": "Observed in this incident",
+      "color": "#e5534b"
+    },
+    {
+      "label": "Checked, not observed",
+      "color": "#9aa4ae"
+    }
+  ]
+}

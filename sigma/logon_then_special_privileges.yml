@@ -1,0 +1,25 @@
+title: Special Privileges Assigned to New Logon
+id: 5e7f9a1b-2c3d-4e5f-8a9b-0c1d2e3f4a55
+status: experimental
+description: >
+  Special privileges (Event ID 4672) assigned to a non-system account. Correlate with
+  the preceding 4624 for the same logon session. Portable version of Rule 4.
+author: Basem Zaher Al-Ammari
+date: 2026-10-09
+references:
+  - https://attack.mitre.org/techniques/T1078/
+tags:
+  - attack.privilege_escalation
+  - attack.t1078
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4672
+  filter_system:
+    SubjectUserName|endswith: '$'
+  condition: selection and not filter_system
+falsepositives:
+  - Legitimate administrators logging on; baseline expected admin accounts.
+level: low

@@ -4,7 +4,9 @@
 Windows Event Logs, Sysmon and web-proxy data to reconstruct a full attack chain,
 with detection searches written in SPL and mapped to MITRE ATT&CK.
 
+[![CI](https://github.com/Drcys/splunk-attack-detection-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Drcys/splunk-attack-detection-lab/actions/workflows/ci.yml)
 ![Splunk](https://img.shields.io/badge/SIEM-Splunk-black)
+![Sigma](https://img.shields.io/badge/rules-Sigma-blueviolet)
 ![SPL](https://img.shields.io/badge/query-SPL-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![MITRE ATT&CK](https://img.shields.io/badge/MITRE%20ATT%26CK-6%20techniques-red)
@@ -52,6 +54,19 @@ flowchart LR
     T --> R[Report +<br/>scheduled alerts]
 ```
 
+## Repository contents
+
+| Path | What it is |
+|---|---|
+| [`rules.md`](rules.md) | The six investigation searches, explained line by line |
+| [`report.md`](report.md) | Analyst-style investigation report |
+| [`detections/savedsearches.conf`](detections/savedsearches.conf) | Detections packaged as scheduled Splunk alerts |
+| [`dashboards/investigation_dashboard.xml`](dashboards/investigation_dashboard.xml) | Importable Splunk dashboard for the whole investigation |
+| [`sigma/`](sigma/) | Vendor-neutral Sigma versions of the Windows detections |
+| [`attack-navigator/layer.json`](attack-navigator/layer.json) | MITRE ATT&CK Navigator layer of observed techniques |
+| [`playbook/c2-beacon-response.md`](playbook/c2-beacon-response.md) | Response playbook: triage, containment, evidence, recovery |
+| [`tests/`](tests/) | CI checks that every dashboard, alert and rule stays valid |
+
 ## What this demonstrates
 
 - Operating Splunk: ingesting multiple sources, searching, and reporting.
@@ -60,6 +75,8 @@ flowchart LR
 - Correlating evidence across independent log sources into one timeline.
 - Mapping findings to MITRE ATT&CK.
 - Writing an investigation up in clear, analyst-grade English.
+- Turning one investigation into reusable detection content: Splunk alerts, a
+  dashboard, portable Sigma rules and a response playbook.
 
 ## Data source
 
@@ -125,6 +142,33 @@ to the external host, consistent with data exfiltration.
 
 Full write-up: [`report.md`](report.md).
 
+## Dashboard
+
+[`dashboards/investigation_dashboard.xml`](dashboards/investigation_dashboard.xml)
+puts the investigation on one screen: event volume, top destinations, a beacon-candidate
+table ranked by interval jitter, a per-minute connection timeline, scheduled-task
+creation with a "suspicious" flag, and the cross-source timeline for a chosen user.
+
+Import: **Dashboards → Create New Dashboard → Classic → Source**, paste the XML, save.
+
+## Sigma rules and ATT&CK layer
+
+The Windows detections are also written as [Sigma](sigma/) rules, so the same logic
+can be converted to Elastic, Sentinel or any other SIEM. The brute-force check is a
+Sigma **correlation** rule (10+ failures per source in 15 minutes). Beaconing stays in
+SPL because it is a statistical timing detection.
+
+[`attack-navigator/layer.json`](attack-navigator/layer.json) loads into the
+[ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) and highlights the
+techniques observed in this incident.
+
+## Response playbook
+
+[`playbook/c2-beacon-response.md`](playbook/c2-beacon-response.md) turns the findings into
+the steps an analyst would take when these alerts fire together: triage checks,
+containment, evidence to preserve, eradication, and lessons learned (including the
+detection gap around initial access).
+
 ## Evidence screenshots
 
 **Data sources ingested** — 796 events across three sources:
@@ -159,7 +203,9 @@ landing inside the beacon window at 14:07:41:
   beaconing.
 - [x] Convert the searches into saved Splunk alerts (`detections/savedsearches.conf`).
 - Add a clean-baseline data set to measure the false-positive rate.
-- Rebuild the same detections as a repeatable dashboard app.
+- [x] Rebuild the investigation as an importable dashboard.
+- [x] Port the Windows detections to Sigma.
+- [ ] Add an allow-list lookup for known periodic services to the beaconing alert.
 
 ## Ethical note
 

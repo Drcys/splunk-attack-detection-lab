@@ -1,0 +1,33 @@
+title: Scheduled Task Created With Hidden or Encoded PowerShell
+id: 3f6a1c2e-7b4d-4e8a-9c1f-5d2b8e0a6f11
+status: experimental
+description: >
+  Detects creation of a scheduled task (Event ID 4698) whose action runs PowerShell
+  with a hidden window, no profile, or an encoded command. Portable version of
+  Rule 2/3 in this lab.
+author: Basem Zaher Al-Ammari
+date: 2026-10-09
+references:
+  - https://attack.mitre.org/techniques/T1053/005/
+  - https://attack.mitre.org/techniques/T1059/001/
+tags:
+  - attack.persistence
+  - attack.execution
+  - attack.t1053.005
+  - attack.t1059.001
+logsource:
+  product: windows
+  service: security
+detection:
+  selection:
+    EventID: 4698
+    TaskContent|contains: 'powershell'
+  flags:
+    TaskContent|contains:
+      - ' -enc'
+      - ' -w hidden'
+      - ' -nop'
+  condition: selection and flags
+falsepositives:
+  - Administrative scripts that deliberately run hidden; review TaskName and author.
+level: high
